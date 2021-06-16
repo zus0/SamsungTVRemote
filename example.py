@@ -7,5 +7,7 @@ shortcuts = rm.shortcuts()
 actions = rm.actions()
 # setup finished
 
+shortcuts.twitch()
 actions.pic_mode("light")
-# actions.hdmi(1)
+
+# run twitch and switch to bright mode (made for personal use obv)

@@ -52,9 +52,9 @@ def main(args):
     if args.interactive:
         interactive(rm)
     elif args.shortcut != None:
-        getattr(shortcuts, args.shortcut)()
+        getattr(shortcuts, args.shortcut[0])(*args.shortcut[1:])
     elif args.action != None:
-        getattr(actions, args.action[0])(args.action[1])
+        getattr(actions, args.action[0])(*args.action[1:])
     
     rm.close()
 
@@ -66,8 +66,8 @@ if __name__ == "__main__":
     parser.add_argument('ip', help = "IP Adderss of your TV")
     parser.add_argument('name', help="Remote name (default: Python Remote)", nargs="?", const = "Python Remote", default="Python Remote")
 
-    group.add_argument("--shortcut", help = "Shortcut to run")
-    group.add_argument("--action", help="Action to run", nargs=2)
+    group.add_argument("--shortcut", help = "Shortcut to run", nargs="+")
+    group.add_argument("--action", help="Action to run", nargs="+")
     group.add_argument("--interactive", action='store_true', default=False, help = "Interactive shell mode")
     
     args = parser.parse_args()

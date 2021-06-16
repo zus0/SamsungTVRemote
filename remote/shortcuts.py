@@ -61,10 +61,12 @@ class Shortcuts:
 
     # volume
     def volume_up(self, amount=1):
+        amount = int(amount) if not isinstance(amount, int) else amount
         for _ in range(amount):
             self.remote.send_key('KEY_VOLUP', 0.30)
 
     def volume_down(self, amount=1):
+        amount = int(amount) if not isinstance(amount, int) else amount
         for _ in range(amount):
             self.remote.send_key('KEY_VOLDOWN', 0.30)
 
