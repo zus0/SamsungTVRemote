@@ -6,6 +6,9 @@ class Actions:
         self.shortcuts = remote.shortcuts()
 
     def hdmi(self, n):
+        if not isinstance(n, int):
+            try: n = int(n)
+            except: return
         self.shortcuts.source()
         self.shortcuts.source()
         for _ in range(3):

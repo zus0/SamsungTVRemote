@@ -45,19 +45,16 @@ def interactive(rm):
 
 def main(args):
     rm = remote.SamsungTVRemote(args.ip, args.name)
+    shortcuts = rm.shortcuts()
     actions = rm.actions()
     if not args.interactive: rm.connect()
 
     if args.interactive:
         interactive(rm)
-    elif args.key != None:
-        rm.send_key(args.key)
-    elif args.app_id != None:
-        rm.start_app(args.app)
-    elif args.hdmi != None:
-        actions.hdmi(args.hdmi)
-    elif args.pic_mode != None:
-        actions.pic_mode(args.pic_mode)
+    elif args.shortcut != None:
+        getattr(shortcuts, args.shortcut)()
+    elif args.action != None:
+        getattr(actions, args.action[0])(args.action[1])
     
     rm.close()
 
@@ -69,11 +66,9 @@ if __name__ == "__main__":
     parser.add_argument('ip', help = "IP Adderss of your TV")
     parser.add_argument('name', help="Remote name (default: Python Remote)", nargs="?", const = "Python Remote", default="Python Remote")
 
-    group.add_argument("-a", "--app-id", help = "AppId to run")
-    group.add_argument("-k", "--key",help = "Key to press")
-    group.add_argument("-i", "--interactive", action='store_true', default=False, help = "Interactive shell mode")
-    group.add_argument("--hdmi", help="Switch to HDMI", type=int)
-    group.add_argument("--pic-mode", help="Picture mode (light/dark)")
+    group.add_argument("--shortcut", help = "Shortcut to run")
+    group.add_argument("--action", help="Action to run", nargs=2)
+    group.add_argument("--interactive", action='store_true', default=False, help = "Interactive shell mode")
     
     args = parser.parse_args()
 

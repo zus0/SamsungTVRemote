@@ -11,7 +11,7 @@ from .actions import Actions
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 class SamsungTVRemote:
-    def __init__(self, ip, name, delay=0.15):
+    def __init__(self, ip, name, delay=0.25):
         self.name = self._encode_name(name)
         self.token = self._get_token()
         self.connection = False
