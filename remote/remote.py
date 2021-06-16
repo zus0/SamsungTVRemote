@@ -4,19 +4,22 @@ import ssl
 import time
 import base64
 import websocket
+import requests
 from .shortcuts import Shortcuts
 from .actions import Actions
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 class SamsungTVRemote:
-    def __init__(self, ip, name) -> None:
+    def __init__(self, ip, name, delay=0.15):
         self.name = self._encode_name(name)
         self.token = self._get_token()
         self.connection = False
+        self.delay = delay
 
         self.ws = websocket.WebSocket(sslopt={"cert_reqs": ssl.CERT_NONE})
         self.url = f'wss://{ip}:8002/api/v2/channels/samsung.remote.control?name={self.name}&token={self.token}'
+        self.web_url = f'http://{ip}:8001/api/v2/'
 
     def connect(self):
         self.ws.connect(self.url)
@@ -24,7 +27,6 @@ class SamsungTVRemote:
         if response['event'] != "ms.channel.connect":
             self.close()
             exit("Unable to connect!")
-        print("Connected!")
         
         if response.get('data'):
             self.connection = True
@@ -34,7 +36,6 @@ class SamsungTVRemote:
     def close(self):
         self.ws.close()
         self.connection = False
-        print("Connection closed.")
 
 
     def start_app(self, app_id):
@@ -52,7 +53,8 @@ class SamsungTVRemote:
             }
         })
     
-    def send_key(self, key, keypress_delay = 0.1): #TODO keypress delay
+    def send_key(self, key, delay = None):
+        delay = delay if delay != None else self.delay
         self.send({
             "method": "ms.remote.control",
             "params": {
@@ -62,7 +64,7 @@ class SamsungTVRemote:
                 "TypeOfRemote": "SendRemoteKey"
             }
         })
-        time.sleep(keypress_delay)
+        time.sleep(delay)
     
     def get_apps(self):
         self.send({
@@ -72,9 +74,13 @@ class SamsungTVRemote:
                 'to': 'host'
             }
         })
+        return self.read_response()
 
     def send(self, command):
         self.ws.send(json.dumps(command))
+    
+    def web_request(self, target = "", method="GET"):
+        return requests.request(method=method, url=self.web_url + target).json()
     
 
     def shortcuts(self):
@@ -92,6 +98,15 @@ class SamsungTVRemote:
         if resp['event'] in ignored_events:
             resp = self.read_response()
         return resp
+    
+    def is_in_app(self):
+        for app in self.get_apps()['data']['data']:
+            try:
+                if self.web_request('applications/' + app['appId'])['visible'] == True:
+                    return True
+            except:
+                pass
+        return False
     
     def _store_token(self, token):
         with open(__location__ + '/token.txt', 'w') as token_file:
